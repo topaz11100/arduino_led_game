@@ -2,27 +2,25 @@
 
 #include "Parts_base.h"
 
-#include "Servo.h"
 
-#include "LiquidCrystal_I2C.h"
-
-void Joystick::init(int x, int y, int z) {
+void Joystick::init(int x, int y, int z, int s) {
 	xPin = x;
 	yPin = y;
 	zPin = z;
 	pinMode(xPin, INPUT);
 	pinMode(yPin, INPUT);
 	pinMode(zPin, INPUT_PULLUP);
+	sense = s;
 }
 
-int Joystick::x_triread(int sense) {
+int Joystick::x_triread() {
 	int temp = x_read();
 	if (temp < (512 - sense)) return -1;
 	else if (temp > (512 + sense)) return 1;
 	else return 0;
 }
 
-int Joystick::y_triread(int sense) {
+int Joystick::y_triread() {
 	int temp = y_read();
 	if (temp < (512 - sense)) return -1;
 	else if (temp > (512 + sense)) return 1;
@@ -80,10 +78,8 @@ void Servo_vector::move_one(int n, int angle, int speed) {
 }
 
 void lcd_print(LiquidCrystal_I2C& lcd, String str, int x, int y) {
-	lcd.noBacklight();
 	lcd.setCursor(x, y);
 	lcd.print(str);
-	lcd.backlight();
 }
 
 char receive_char(char error_char) {

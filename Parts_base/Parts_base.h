@@ -9,16 +9,18 @@
 
 class Joystick {
 public:
-    void init(int x, int y, int z);
+    void init(int x, int y, int z, int s);
+    void set_sense(int s) { sense = s; }
     int x_read() { return analogRead(xPin); }
-    int x_triread(int sense);
+    int x_triread();
     int y_read() { return analogRead(yPin); }
-    int y_triread(int sense);
-    int z_read() { return digitalRead(xPin); }
+    int y_triread();
+    bool z_read() { return !digitalRead(zPin); }
 private:
     int xPin;
     int yPin;
     int zPin;
+    int sense;
 };
 
 class Ultrasonic {
