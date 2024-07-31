@@ -29,14 +29,13 @@ struct Vec {
 	bool operator!=(const Vec& u) { return !((*this) == u); }
 };
 
-
 class Entity {
 public:
 	Entity() :shape{nullptr} {}
-	Entity(Vec design[], int n, const Vec& start, int color_input[]) { init(design, n, start, color_input); }
+	Entity(Vec design[], int n, const Vec& start, int color_input[]);
 	Entity(const Entity& E);
 	Entity& operator=(const Entity& E);
-	void init(Vec design[], int n, const Vec& start, int color_input[]);
+	void move(const Vec& v);
 	
 	~Entity() { delete[] shape; }
 
@@ -44,12 +43,13 @@ public:
 	void set_v(const Vec& v) { velocity = v; }
 
 	int get_size() const { return size; }
-	
-	const int* get_color() const { return color; }
+
+	int* get_color() const { return color; }
+
 	Vec& operator[](int index) { return shape[index]; }
 
 	bool is_over();
-	void move(const Vec& v);
+	
 private:
 	Vec* shape;
 	Vec velocity;
@@ -57,6 +57,7 @@ private:
 	
 	int color[3];
 };
+
 bool collision(const Entity& a, const Entity& b);
 
 class Entity_vector {
@@ -87,9 +88,11 @@ void led_print(Adafruit_NeoPixel* led, const Entity& a);
 
 class Game_base {
 public:
+	virtual void start() {}
 	virtual bool frame() {}
-	virtual String get_name() {}
 	virtual void reset() {}
+
+	virtual String get_name() {}
 
 	void init(Adafruit_NeoPixel* le, Joystick* j1, Joystick* j2) {
 		led = le; joy1 = j1; joy2 = j2;
@@ -111,6 +114,7 @@ public:
 	Game_Manager() : lcd{ nullptr }, joy1{ nullptr }, joy2{ nullptr } {}
 	void init(Game_base* g[], int s, Adafruit_NeoPixel* le, LiquidCrystal_I2C* lc, Joystick* j1, Joystick* j2);
 	~Game_Manager() { delete[] games; }
+
 	int game_select();
 	void game_play();
 
@@ -127,9 +131,10 @@ private:
 
 class Game_1 : public Game_base {
 public:
-	Game_1();
-	void reset();
+	void start();
 	bool frame();
+	void reset();
+	
 	String get_name() { return game_name; }
 
 private:
@@ -143,7 +148,6 @@ private:
 
 	Vec player_shape[4] = { Vec{-1,0}, Vec{0,1}, Vec{1,0}, Vec{0,-1} };
 	int player_color[3] = { 0,255,255 };
-	Vec player_start{ 7,7 };
 
 	Vec enemy_shape[1] = { Vec{0,0} };
 	int enemy_color[3] = { 255,0,255 };

@@ -2,6 +2,19 @@
 
 #include "Game.h"
 
+Entity::Entity(Vec design[], int n, const Vec& start, int color_input[]) {
+	shape = new Vec[n];
+	size = n;
+
+	velocity = Vec{ random(-2,3), random(-2,3) };
+	while (velocity == Vec{0,0}) velocity = Vec{ random(-2,3), random(-2,3) };
+
+	for (int i = 0; i < size; i += 1) shape[i] = design[i];
+	for (int i = 0; i < 3; i += 1) color[i] = color_input[i];
+
+	move(start);
+}
+
 Entity::Entity(const Entity& E) {
 	velocity = E.velocity;
 	size = E.size;
@@ -22,18 +35,6 @@ Entity& Entity::operator=(const Entity& E) {
 	shape = new Vec[E.size];
 	for (int i = 0; i < E.size; i += 1) shape[i] = E.shape[i];
 	return *this;
-}
-
-void Entity::init(Vec design[], int n, const Vec& start, int color_input[]) {
-	shape = new Vec[n];
-	size = n;
-	
-	velocity = Vec{ random(-2,3), random(-2,3) };
-
-	for (int i = 0; i < size; i += 1) shape[i] = design[i];
-	for (int i = 0; i < 3;    i += 1) color[i] = color_input[i];
-
-	move(start);
 }
 
 bool Entity::is_over() {
@@ -79,7 +80,6 @@ Entity_vector& Entity_vector::operator=(const Entity_vector& E_v) {
 	}
 }
 
-
 int Entity_vector::overatfront() {
 	for (int i = 0; i < size; i += 1) {
 		if (data[i].is_over()) return i;
@@ -90,6 +90,7 @@ int Entity_vector::overatfront() {
 void Entity_vector::push_back(const Entity& value) {
 	int new_size = size + 1;
 	Entity* new_data = new Entity[new_size];
+	Serial.println(freeMemory());
 	for (int i = 0; i < size; i += 1) {
 		new_data[i] = data[i];
 	}
@@ -102,6 +103,7 @@ void Entity_vector::push_back(const Entity& value) {
 void Entity_vector::del(int index) {
 	int new_size = size - 1;
 	Entity* new_data = new Entity[new_size];
+	Serial.println(freeMemory());
 	for (int i = 0; i < index; i += 1) {
 		new_data[i] = data[i];
 	}
@@ -180,20 +182,18 @@ int Game_Manager::game_select() {
 
 void Game_Manager::game_play() {
 	int game_num = game_select();
+	games[game_num]->start();
 	
 	while (games[game_num]->frame()) {
-		lcd_print(*lcd, "     play game", 0, 0);
+		lcd_print(*lcd, "playing                ", 0, 0);
+		lcd_print(*lcd, games[game_num]->get_name() + "                    ", 0, 1);
 	}
 
 	games[game_num]->reset();
-	lcd_print(*lcd, "   game over", 0, 0);
+	lcd_print(*lcd, "   game over  ", 0, 0);
 	lcd_print(*lcd, "push to continue", 0, 1);
 
 	while (!joy1->z_read()) {}
-}
-
-Game_1::Game_1() {
-	now_entity.push_back(Entity{ player_shape, 4, player_start, player_color});
 }
 
 void Game_1::player_move() {
@@ -204,7 +204,7 @@ void Game_1::player_move() {
 void Game_1::create_enemy() {
 	Vec a;
 	int x = random(0, 4);
-	if (x == 0)      a = Vec{ random(0, 1), random(0, 16) };
+	if      (x == 0) a = Vec{ random(0, 1), random(0, 16) };
 	else if (x == 1) a = Vec{ random(14,16), random(0, 16) };
 	else if (x == 2) a = Vec{ random(0, 16), random(14,16) };
 	else if (x == 3) a = Vec{ random(0, 16), random(0, 1) };
@@ -228,28 +228,31 @@ bool Game_1::del_over() {
 
 bool Game_1::collision_check() {
 	for (int i = 1; i < now_entity.get_size(); i += 1) {
-		if (collision(now_entity[0], now_entity[i])) return true;
+		if ( collision( now_entity[0], now_entity[i] ) ) return true;
 	}
 	return false;
 }
 
-void Game_1::reset() {
-	now_entity.clear();
-	now_entity.push_back(Entity{ player_shape, 4, player_start, player_color});
+void Game_1::start() {
+	Vec player_start{ random(7,9), random(7,9) };
+	now_entity.push_back(Entity{ player_shape, 4, player_start, player_color });
 }
 
 bool Game_1::frame() {
-	if (truenper(100)) create_enemy();
-	player_move();
-	enemy_move();
+	if (truenper(50)) create_enemy();
+	player_move(); enemy_move();
+
 	print();
 	delay(200);
 
 	Serial.println(freeMemory());
 
 	if (del_over()) return false;
-	bool result = !collision_check();
-	return result;
+	return !collision_check();
+}
+
+void Game_1::reset() {
+	now_entity.clear();
 }
 
 

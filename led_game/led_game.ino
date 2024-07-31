@@ -1,4 +1,3 @@
-
 #include <Game.h>
 
 Adafruit_NeoPixel led{256, 10, NEO_GRB + NEO_KHZ800};
@@ -13,6 +12,7 @@ const int joy_sense = 200;
 Game_1 g1;
 Game_base* game_list[1] = { &g1 };
 Game_Manager gm;
+
 void setup()
 {
   randomSeed(analogRead(A5));
@@ -20,19 +20,19 @@ void setup()
 
   led.begin();         
   led.show();            
-  led.setBrightness(1); // 밝기를 설정합니다. (최대값 : 255)
+  led.setBrightness(1);
 
   lcd.init();
   lcd.backlight();
 
   joy1.init(joy_pin[0][0], joy_pin[0][1], joy_pin[0][2], joy_sense);
   joy2.init(joy_pin[1][0], joy_pin[1][1], joy_pin[1][2], joy_sense);
-  
+
   gm.init(game_list, 1, &led, &lcd, &joy1, &joy2);
 }
 
 void loop()
-{ 
+{
   gm.game_play();
 }
 
