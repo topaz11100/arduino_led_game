@@ -4,8 +4,8 @@
 
 
 void Joystick::init(int x, int y, int z, int s) {
-	xPin = x;
-	yPin = y;
+	xPin = y;
+	yPin = x;
 	zPin = z;
 	pinMode(xPin, INPUT);
 	pinMode(yPin, INPUT);
@@ -99,7 +99,7 @@ String receive_String(char terminal_char) {
 	return result;
 }
 
-void Strip::decomposition(String str) {
+void Protocol::strip(String str) {
 	int* interval = new int[sep_count];
 	int mark = 0;
 	for (int i = 0; i < sep_count; i += 1) {

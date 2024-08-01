@@ -11,9 +11,9 @@ class Joystick {
 public:
     void init(int x, int y, int z, int s);
     void set_sense(int s) { sense = s; }
-    int x_read() { return analogRead(xPin); }
+    int x_read() { return 1023 - analogRead(xPin); }
     int x_triread();
-    int y_read() { return analogRead(yPin); }
+    int y_read() { return 1023 - analogRead(yPin); }
     int y_triread();
     bool z_read() { return !digitalRead(zPin); }
 private:
@@ -36,7 +36,7 @@ class Servo_vector {
 public:
     Servo_vector(int s) : sv{ new Servo[s] }, size{ s } {}
     ~Servo_vector() { delete[] sv; }
-    const Servo& operator[](int n) { return sv[n]; }
+    Servo& operator[](int n) { return sv[n]; }
     void attach(int pin[]);
     void move_arr(int angle[], int speed);
     void move_one(int n, int angle, int speed);
@@ -52,12 +52,12 @@ char receive_char(char error_char);
 
 String receive_String(char terminal_char);
 
-class Strip {
+class Protocol {
 public:
-    Strip(char c, int n) :s{ new String[n + 1] }, sep{ c }, sep_count{ n } {}
-    void decomposition(String str);
+    Protocol(char c, int n) :s{ new String[n + 1] }, sep{ c }, sep_count{ n } {}
+    void strip(String str);
     const String& operator[](int n) { return s[n]; }
-    ~Strip() { delete[] s; }
+    ~Protocol() { delete[] s; }
 private:
     String* s;
     char sep;

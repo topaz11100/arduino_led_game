@@ -60,7 +60,7 @@ bool collision(const Entity& a, const Entity& b) {
 		}
 	}
 	return false;
-}
+} 
 
 Entity_vector::Entity_vector(const Entity_vector& E_v) {
 	size = E_v.size;
