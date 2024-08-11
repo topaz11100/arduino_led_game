@@ -7,15 +7,31 @@
 
 #include "LiquidCrystal_I2C.h"
 
+class Button {
+public:
+    void init(int p) { pin = p; pinMode(p, INPUT_PULLUP); }
+
+    bool is_pushed() { return !digitalRead(pin); }
+    void button_neutral() { while (true) { if (!is_pushed()) return; } }
+private:
+    int pin;
+};
+
 class Joystick {
 public:
     void init(int x, int y, int z, int s);
     void set_sense(int s) { sense = s; }
+
     int x_read() { return 1023 - analogRead(xPin); }
     int x_triread();
+
     int y_read() { return 1023 - analogRead(yPin); }
     int y_triread();
+
     bool z_read() { return !digitalRead(zPin); }
+
+    bool is_zero() { return !(x_triread() || y_triread() || z_read()); }
+    void joystick_neutral() { while (true) { if (is_zero()) return; } }
 private:
     int xPin;
     int yPin;
@@ -46,10 +62,10 @@ private:
     bool issame(int angle[]);
 };
 
-void lcd_print(LiquidCrystal_I2C& lcd, String str, int x, int y);
+void lcd_print(const LiquidCrystal_I2C& lcd, const String& str, int x, int y);
+String make_space(const String& str, int lcd_width, int mode = 0);
 
 char receive_char(char error_char);
-
 String receive_String(char terminal_char);
 
 class Protocol {

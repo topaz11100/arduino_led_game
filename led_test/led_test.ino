@@ -12,9 +12,8 @@ void setup() {
   led.show();            
   led.setBrightness(1); // 밝기를 설정합니다. (최대값 : 255)
 }
+int i=0;
 void loop() {
-  Adafruit_NeoPixel& a = led;
-  Adafruit_NeoPixel& b = a;
-  b.setPixelColor(10, 255,0,255);
-  a.show();
+  i-=1;
+  Serial.println(i%4);
 }

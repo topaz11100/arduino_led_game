@@ -1,34 +1,35 @@
 #include <Game.h>
 
-Adafruit_NeoPixel led{256, 10, NEO_GRB + NEO_KHZ800};
+const int led_pin = 7;
+Adafruit_NeoPixel led{256, led_pin, NEO_GRB + NEO_KHZ800};
 
 LiquidCrystal_I2C lcd{0x27, 16, 2};
 
-Joystick joy1;
-Joystick joy2;
-const int joy_pin[2][3] = { {14, 15, 11}, {16, 17, 12} };
+Joystick* joy[2] = {new Joystick, new Joystick};
+const int joy_pin[2][3] = { {A0, A1, 11}, { A2, A3, 10} };
 const int joy_sense = 200;
 
-Game_1 g1;
-Game_base* game_list[1] = { &g1 };
+const int game_count = 2;
+Game_base* game_list[game_count] = { new Game_2, new Game_1 };
 Game_Manager gm;
 
 void setup()
 {
-  randomSeed(analogRead(A5));
+  randomSeed(analogRead(A8));
   Serial.begin(9600);
 
-  led.begin();         
-  led.show();            
+  led.begin();
+  led.show();
   led.setBrightness(1);
 
   lcd.init();
   lcd.backlight();
 
-  joy1.init(joy_pin[0][0], joy_pin[0][1], joy_pin[0][2], joy_sense);
-  joy2.init(joy_pin[1][0], joy_pin[1][1], joy_pin[1][2], joy_sense);
+  for(int i=0; i<2; i+=1){
+    joy[i]->init(joy_pin[i][0], joy_pin[i][1], joy_pin[i][2], joy_sense);
+  }
 
-  gm.init(game_list, 1, &led, &lcd, &joy1, &joy2);
+  gm.init(game_list, game_count, &led, &lcd, joy);
 }
 
 void loop()

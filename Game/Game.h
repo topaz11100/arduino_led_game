@@ -39,7 +39,7 @@ public:
 	
 	~Entity() { delete[] shape; }
 
-	Vec get_v() const { return velocity; }
+	const Vec& get_v() const { return velocity; }
 	void set_v(const Vec& v) { velocity = v; }
 
 	int get_size() const { return size; }
@@ -86,16 +86,38 @@ bool truenper(int n);
 int led_position(const Vec& v);
 void led_print(Adafruit_NeoPixel* led, const Entity& a);
 
+class Game_Manager {
+public:
+	Game_Manager() : led{ nullptr }, lcd{ nullptr } {}
+	void init(Game_base* g[], int s, Adafruit_NeoPixel* le, LiquidCrystal_I2C* lc, Joystick* j[]);
+	~Game_Manager() { delete[] games; }
+
+	int game_select();
+	void game_play();
+
+private:
+	int validnum(int n1, int n2);
+	void clear_led() { led->clear(); led->show(); }
+
+	Game_base** games = nullptr;
+	int size;
+
+	Adafruit_NeoPixel* led = nullptr;
+	LiquidCrystal_I2C* lcd = nullptr;
+	Joystick* joy[2] = { nullptr, nullptr };
+};
+
 class Game_base {
 public:
 	virtual void start() {}
 	virtual bool frame() {}
-	virtual void reset() {}
+	virtual void end() {}
 
+	virtual void playing_print() {}
 	virtual String get_name() {}
 
-	void init(Adafruit_NeoPixel* le, Joystick* j1, Joystick* j2) {
-		led = le; joy1 = j1; joy2 = j2;
+	void init(Adafruit_NeoPixel* le, LiquidCrystal_I2C* lc, Joystick* j[]) {
+		led = le; lcd = lc; joy[0] = j[0]; joy[1] = j[1];
 	}
 
 protected:
@@ -105,36 +127,17 @@ protected:
 	Entity_vector now_entity;
 
 	Adafruit_NeoPixel* led = nullptr;
-	Joystick* joy1 = nullptr;
-	Joystick* joy2 = nullptr;
-};
-
-class Game_Manager {
-public:
-	Game_Manager() : lcd{ nullptr }, joy1{ nullptr }, joy2{ nullptr } {}
-	void init(Game_base* g[], int s, Adafruit_NeoPixel* le, LiquidCrystal_I2C* lc, Joystick* j1, Joystick* j2);
-	~Game_Manager() { delete[] games; }
-
-	int game_select();
-	void game_play();
-
-private:
-	int validnum(int n1, int n2);
-
-	Game_base** games;
-	int size;
-
-	LiquidCrystal_I2C* lcd;
-	Joystick* joy1;
-	Joystick* joy2;
+	LiquidCrystal_I2C* lcd = nullptr;
+	Joystick* joy[2] = { nullptr, nullptr };
 };
 
 class Game_1 : public Game_base {
 public:
 	void start();
 	bool frame();
-	void reset();
-	
+	void end();
+
+	void playing_print();
 	String get_name() { return game_name; }
 
 private:
@@ -144,6 +147,8 @@ private:
 	bool del_over();
 	bool collision_check();
 
+	int game_score = 0;
+
 	String game_name = "dodge";
 
 	Vec player_shape[4] = { Vec{-1,0}, Vec{0,1}, Vec{1,0}, Vec{0,-1} };
@@ -151,6 +156,41 @@ private:
 
 	Vec enemy_shape[1] = { Vec{0,0} };
 	int enemy_color[3] = { 255,0,255 };
+};
+
+class Game_2 : public Game_base {
+public:
+	void start();
+	bool frame();
+	void end();
+
+	void playing_print();
+	String get_name() { return game_name; }
+
+private:
+	void player_move();
+	void ball_move();
+	void change_ball(int n);
+	void player_collision();
+	void wall_collision();
+	int ball_gameover_check();
+	
+	int win_user = 0;
+
+	String game_name = "pong";
+
+	Vec p_shape[4] = { Vec{0,0}, Vec{0,1}, Vec{0,2}, Vec{0,3} };
+	int p1_color[3] = { 0,255,255 };
+	int p2_color[3] = { 255,0,255 };
+
+	Vec ball_shape[1] = { Vec{0,0} };
+	int ball_color[3] = { 0,255,0 };
+
+	int ball_cat = 0;
+	int ball_flip = 0;
+	Vec ball_route[3][4] = { { Vec{ 1, 0 }, Vec{ -1, 0 }, Vec{ 1, 0 }, Vec{ -1, 0 } },
+							 { Vec{ 1, 1 }, Vec{ -1, 1 }, Vec{ 1,-1 }, Vec{ -1,-1 } },
+							 { Vec{ 1, 2 }, Vec{ -1, 2 }, Vec{ 1,-2 }, Vec{ -1,-2 } } };
 };
 
 
