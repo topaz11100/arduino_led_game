@@ -3,13 +3,14 @@
 
 #include "Arduino.h"
 
-#include "Parts_base.h"
-
 #include "Adafruit_NeoPixel.h"
+
+#include "lcd_helper.h"
 
 #include "MemoryFree.h"
 
-struct Vec {
+struct Vec
+{
 	Vec() :x{ 0 }, y{ 0 } {}
 	Vec(int xx, int yy) :x{ xx }, y{ yy } {}
 	void set_x(int xx) { x = xx; }
@@ -29,7 +30,8 @@ struct Vec {
 	bool operator!=(const Vec& u) { return !((*this) == u); }
 };
 
-class Entity {
+class Entity
+{
 public:
 	Entity() :shape{nullptr} {}
 	Entity(Vec design[], int n, const Vec& start, int color_input[]);
@@ -60,7 +62,8 @@ private:
 
 bool collision(const Entity& a, const Entity& b);
 
-class Entity_vector {
+class Entity_vector
+{
 public:
 	Entity_vector() : data{ nullptr }, size{ 0 } {}
 	Entity_vector(const Entity_vector& E_v);
@@ -86,7 +89,8 @@ bool truenper(int n);
 int led_position(const Vec& v);
 void led_print(Adafruit_NeoPixel* led, const Entity& a);
 
-class Game_Manager {
+class Game_Manager
+{
 public:
 	Game_Manager() : led{ nullptr }, lcd{ nullptr } {}
 	void init(Game_base* g[], int s, Adafruit_NeoPixel* le, LiquidCrystal_I2C* lc, Joystick* j[]);
@@ -107,7 +111,8 @@ private:
 	Joystick* joy[2] = { nullptr, nullptr };
 };
 
-class Game_base {
+class Game_base
+{
 public:
 	virtual void start() {}
 	virtual bool frame() {}
@@ -131,7 +136,8 @@ protected:
 	Joystick* joy[2] = { nullptr, nullptr };
 };
 
-class Game_1 : public Game_base {
+class Game_1 : public Game_base
+{
 public:
 	void start();
 	bool frame();
@@ -158,7 +164,8 @@ private:
 	int enemy_color[3] = { 255,0,255 };
 };
 
-class Game_2 : public Game_base {
+class Game_2 : public Game_base
+{
 public:
 	void start();
 	bool frame();
