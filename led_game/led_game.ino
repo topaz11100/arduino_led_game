@@ -25,7 +25,8 @@ void setup()
   lcd.init();
   lcd.backlight();
 
-  for(int i=0; i<2; i+=1){
+  for(int i = 0; i < 2; i += 1)
+  {
     joy[i]->init(joy_pin[i][0], joy_pin[i][1], joy_pin[i][2], joy_sense);
   }
 
